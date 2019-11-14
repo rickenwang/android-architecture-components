@@ -16,10 +16,11 @@
 
 package com.android.example.github.ui.repo
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.databinding.DataBindingComponent
 import androidx.annotation.StringRes
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
@@ -31,6 +32,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
 import androidx.navigation.NavController
+import androidx.navigation.fragment.FragmentNavigator
 import com.android.example.github.R
 import com.android.example.github.binding.FragmentBindingAdapters
 import com.android.example.github.testing.SingleFragmentActivity
@@ -41,7 +43,6 @@ import com.android.example.github.util.RecyclerViewMatcher
 import com.android.example.github.util.TaskExecutorWithIdlingResourceRule
 import com.android.example.github.util.TestUtil
 import com.android.example.github.util.ViewModelUtil
-import com.android.example.github.util.matcher
 import com.android.example.github.util.mock
 import com.android.example.github.vo.Contributor
 import com.android.example.github.vo.Repo
@@ -51,7 +52,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
@@ -78,7 +81,7 @@ class RepoFragmentTest {
     private lateinit var mockBindingAdapter: FragmentBindingAdapters
 
     private val repoFragment = TestRepoFragment().apply {
-        arguments = RepoFragmentArgs.Builder("a", "b").build().toBundle()
+        arguments = RepoFragmentArgs("a", "b").toBundle()
     }
 
     @Before
@@ -174,7 +177,8 @@ class RepoFragmentTest {
         setContributors("aa", "bb", "cc")
         onView(withText("cc")).perform(click())
         verify(repoFragment.navController).navigate(
-                RepoFragmentDirections.showUser("cc").matcher()
+                eq(RepoFragmentDirections.showUser("cc")),
+                any(FragmentNavigator.Extras::class.java)
         )
     }
 
@@ -205,7 +209,7 @@ class RepoFragmentTest {
     }
 
     private fun getString(@StringRes id: Int, vararg args: Any): String {
-        return InstrumentationRegistry.getTargetContext().getString(id, *args)
+        return ApplicationProvider.getApplicationContext<Context>().getString(id, *args)
     }
 
     class TestRepoFragment : RepoFragment() {

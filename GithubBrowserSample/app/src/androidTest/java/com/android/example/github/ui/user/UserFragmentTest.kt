@@ -39,7 +39,6 @@ import com.android.example.github.util.RecyclerViewMatcher
 import com.android.example.github.util.TaskExecutorWithIdlingResourceRule
 import com.android.example.github.util.TestUtil
 import com.android.example.github.util.ViewModelUtil
-import com.android.example.github.util.matcher
 import com.android.example.github.util.mock
 import com.android.example.github.vo.Repo
 import com.android.example.github.vo.Resource
@@ -74,7 +73,7 @@ class UserFragmentTest {
     private val userData = MutableLiveData<Resource<User>>()
     private val repoListData = MutableLiveData<Resource<List<Repo>>>()
     private val testFragment = TestUserFragment().apply {
-        arguments = UserFragmentArgs.Builder("foo").build().toBundle()
+        arguments = UserFragmentArgs("foo").toBundle()
     }
 
     @Before
@@ -156,7 +155,7 @@ class UserFragmentTest {
         val selected = repos[1]
         onView(withText(selected.description)).perform(click())
         verify(testFragment.navController).navigate(
-                UserFragmentDirections.showRepo(selected.owner.login, selected.name).matcher()
+                UserFragmentDirections.showRepo(selected.owner.login, selected.name)
         )
     }
 
